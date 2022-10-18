@@ -1,6 +1,8 @@
 # Todo App - Backend
 
-## Criação do arquivo package.json
+## Configuração e Instalação
+
+### Criação do arquivo package.json
 
 - Para começar devemos criar o arquivo `package.json`, o qual vai conter as nossas dependências cadastradas e scripts que iremos executar para startar a aplicação. 
 E para criar esse arquivo vamos rodar o comando seguinte no terminal:
@@ -57,11 +59,11 @@ npm i --save-dev -E nodemon@1.11.0
 
 `nodemon` - Responsável por iniciar nossa aplicação no ambiente de desenvolvimento.
 
-## Alterações iniciais no projeto
+### Alterações iniciais no projeto
 
 - Com o projeto aberto editor de texto.
 
-### Alterações no arquivo package.json
+#### Alterações no arquivo package.json
 
 - Em `main` vamos alterar o arquivo inicial para `src/loader.js`(ainda iremos criar esse arquivo):
 
@@ -99,8 +101,8 @@ npm i --save-dev -E nodemon@1.11.0
   "description": "",
   "main": "src/loader.js",
   "scripts": {
-    "dev": "nodemon",
-    "production": "pm2 start src/loader --name todo-app"
+    "dev": "nodemon", // para startar a aplicação no ambiente dev
+    "production": "pm2 start src/loader --name todo-app" // para startar a aplicação no ambiente production
   },
   "keywords": [],
   "author": "",
@@ -126,4 +128,107 @@ npm i --save-dev -E nodemon@1.11.0
 node_modules #repositório
 *.log #arquivos que terminam com .log
 ```
+
+## Configurando o Servidor com Express
+
+### Criação da pasta src, suas subpastas e arquivos
+
+- Na raiz do projeto vamos criar a pasta `src` e dentro dela a subpasta `config` e o arquivo `loader.js`(arquivo que irá os principais arquivos de configuração do projeto); dentro da pasta `config` vamos criar o arquvivo `server.js`(arquivo relativo ao Express onde iremos startar o servidor).
+
+#### Configurações do arquivo loader.js
+
+- O `loader.js` é o arquivo que irá os principais arquivos de configuração do projeto, por tanto, inicialmente dentro desse arquivo iremos fazer um `require` do arquivo `server.js`:
+
+``` JS
+require("./config/server");
+```
+
+#### Configurações do arquivo server.js
+
+- Feito isso, no `server.js`, arquivo relativo ao Express onde iremos startar o servidor. Iremos criar uma const `port` que irá receber a porta que essa aplicação irá rodar:
+
+``` JS
+const port = 3003;
+```
+
+- Em seguida, iremos criar uma const `bodyParser` que irá requisitar/`require` da dependência `body-parser`, a qual irá fazer o "parser"/analisar o corpo da requisição:
+
+``` JS
+const port = 3003;
+
+const bodyParser = require("body-parser");
+```
+
+- Feito isso, iremos criar uma const `express` que irá requisitar/`require` da dependência `express`, o servidor web que roda "em cima" do nodeJS:
+
+``` JS
+const port = 3003;
+
+const bodyParser = require("body-parser");
+const express = require("express");
+```
+
+- Agora, iremos criar uma const `server` a qual irá receber uma instância do `express`:
+
+``` JS
+const port = 3003;
+
+const bodyParser = require("body-parser");
+const express = require("express");
+const server = express();
+```
+
+- Uma vez criada uma instância do `express` iremos aplicar alguns `middlewares`(software que fica entre um sistema operacional e os aplicativos executados nele. Funcionando essencialmente como uma camada de tradução) para a requisição.
+O primeiro deles é o `body-parser` que está dentro da const `bodyParser` no qual iremos configurar que sempre que chegar uma requisição no padrão `urlencoded`(padrão usado para submissão de formulários) será habilitado o módulo `extended` que suporta mais tipos de dados do que o padrão do `urlencoded`:
+
+``` JS
+const port = 3003;
+
+const bodyParser = require("body-parser");
+const express = require("express");
+const server = express();
+
+server.use(bodyParser.urlencoded({ extended: true }));
+```
+
+- O próximo `middleware` será também será o `body-parser` que está dentro da const `bodyParser` no qual iremos configurar que sempre que chegar uma requisição ele irá fazer o "parse" para `json`:
+
+``` JS
+const port = 3003;
+
+const bodyParser = require("body-parser");
+const express = require("express");
+const server = express();
+
+server.use(bodyParser.urlencoded({ extended: true }));
+server.use(bodyParser.json());
+```
+
+- Continuando iremos informar ao servidor/`server` ficar escutando/`listen` a porta 3003 que está armazenada na const `port`. E para caso ele consiga realmente alorcar essa porta e ficar escutando ela vamos chamar uma função callback que irá exibir um console para identificarmos que deu tudo certo:
+
+``` JS
+const port = 3003;
+
+const bodyParser = require("body-parser");
+const express = require("express");
+const server = express();
+
+server.use(bodyParser.urlencoded({ extended: true }));
+server.use(bodyParser.json());
+
+server.listen(port, function() {
+  console.log(`BACKEND is running on port ${port}.`);
+});
+```
+
+#### Startando a aplicação Back-End
+
+- Agora, podemos startar a aplicação usando o `nodemon` indo no terminal e rodando o comando seguinte: 
+
+```
+npm run dev
+```
+
+## Conexão com o Banco de Dados
+
 
