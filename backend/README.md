@@ -570,3 +570,17 @@ server.listen(port, function() {
 
 module.exports = server;
 ```
+
+## Iniciando o backend com pm2
+
+- Podemos verificar o status da aplicação com o comando:
+
+```
+npm run production
+```
+
+- E para ficarmos monitorando ela usamos o comando:
+
+``` 
+./node_modules/.bin/pm2 monit
+```
