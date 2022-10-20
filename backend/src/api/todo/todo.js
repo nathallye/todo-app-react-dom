@@ -1,4 +1,4 @@
-const restful = require("node-restful");
+const restful = require("node-restful"); // link documentação https://www.npmjs.com/package/node-restful
 const mongoose = restful.mongoose; // o node-restful cria como se fosse uma casca emcima do mongoose resutando em uma api rest quase pronta
 
 const todoSchema = new mongoose.Schema({

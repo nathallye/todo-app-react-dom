@@ -322,7 +322,7 @@ module.exports = mongoose.connect("mongodb://0.0.0.0:27017/todo", {
 - Dentro desse arquivo também iremos usar a API do `mongoose` juntamente com a API do Node RestFul que vai trazer algumas facilidades:
 
 ``` JS
-const restful = require("node-restful");
+const restful = require("node-restful"); // link documentação https://www.npmjs.com/package/node-restful
 const mongoose = restful.mongoose; // o node-restful cria como se fosse uma casca "em cima" do mongoose resutando em uma api rest quase pronta
 ```
 
