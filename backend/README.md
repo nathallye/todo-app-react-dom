@@ -131,13 +131,11 @@ node_modules #repositório
 
 ## Configurando o Servidor com Express
 
-### Criação da pasta src, suas subpastas e arquivos
-
-- Na raiz do projeto vamos criar a pasta `src` e dentro dela a subpasta `config` e o arquivo `loader.js`(arquivo que irá os principais arquivos de configuração do projeto); dentro da pasta `config` vamos criar o arquvivo `server.js`(arquivo relativo ao Express onde iremos startar o servidor).
+- Primeiramente, na raiz do projeto vamos criar a pasta `src` e dentro dela a subpasta `config` e o arquivo `loader.js`(arquivo que irá os principais arquivos de configuração do projeto); dentro da pasta `config` vamos criar o arquvivo `server.js`(arquivo relativo ao Express onde iremos startar o servidor).
 
 #### Configurações do arquivo loader.js
 
-- O `loader.js` é o arquivo que irá os principais arquivos de configuração do projeto, por tanto, inicialmente dentro desse arquivo iremos fazer um `require` do arquivo `server.js`:
+- O `loader.js` é o arquivo que irá os principais arquivos de configuração do projeto, por tanto, inicialmente dentro dele iremos fazer um `require` do arquivo `server.js`:
 
 ``` JS
 require("./config/server");
@@ -221,7 +219,7 @@ server.listen(port, function() {
 });
 ```
 
-#### Startando a aplicação Back-End
+#### Startando a aplicação backend com Nodemon
 
 - Agora, podemos startar a aplicação usando o `nodemon` indo no terminal e rodando o comando seguinte: 
 
@@ -231,4 +229,176 @@ npm run dev
 
 ## Conexão com o Banco de Dados
 
+- Primeiramente, dentro da pasta `config` vamos criar um arquivo chamado `database.js`(arquivo responsável pela configuração da aplicação com o mongodb).
 
+#### Configurações do arquivo database.js
+
+- Nesse arquivo iremos criar uma const `mongoose` que irá requisitar/`require` da dependência `mongoose`, responsável pelo mapeamento dos objetos JS para os documentos que vão para o mongodb, como também por fazer a conexão com o mongo e mandar os comandos pra lá(inserção, atualização, exclusão...):
+
+``` JS
+const mongoose = require("mongoose");
+```
+
+- Feito isso, vamos fazer uma substituição a qual vamos informar que o mongoose(`mongoose.Promise`) vai usar a API de Promise do próprio nodeJS(`global.Promise`), só para removermos uma mensagem de advertência a qual alerta que a API de Promise do mongoose está depreciada:
+
+``` JS
+const mongoose = require("mongoose");
+
+mongoose.Promise = global.Promise;
+```
+
+- Agora, vamos exportar esse módulo para que fique visível/acessível externamente chamando o `module.exports` o qual irá receber o que queremos exportar/expor, que nesse caso é o `mongoose` conectado a uri do BD:
+
+``` JS
+const mongoose = require("mongoose");
+
+mongoose.Promise = global.Promise;
+
+module.exports = mongoose.connect("mongodb://localhost/todo");
+```
+
+#### Configurações do arquivo loader.js
+
+- O `loader.js` é o arquivo que irá os principais arquivos de configuração do projeto, por tanto, dentro dele também iremos fazer um `require` do arquivo `database.js`:
+
+``` JS
+require("./config/server");
+require("./config/database");
+```
+
+#### Startando a aplicação backend com Nodemon e o Banco de Dados MongoDB
+
+- Agora, podemos startar a aplicação usando o `nodemon` indo no terminal e rodando o comando seguinte: 
+
+```
+npm run dev
+```
+
+- Podemos notar no terminal que gerou o erro `[nodemon] app crashed - waiting for file changes before starting...`, isso ocorre porque ainda não estamos com o `mongodb` startado.
+Para startar o `mongodb` em um novo terminal vamos rodar o comando seguinte:
+
+```
+mongod
+```
+
+- Agora, se formos no terminal que está rodando a aplicação com o nodemon e digitarmos `rs`, é feito um reload na aplicação e feito isso a aplicação passa a funcionar normalmente.
+
+#### Atualizações NodeJS 
+
+- Devido a atualização do NodeJS a `uri` no seguinte formato está dando erro:
+
+``` JS
+const mongoose = require("mongoose");
+
+mongoose.Promise = global.Promise;
+
+module.exports = mongoose.connect("mongodb://localhost:27017/todo", {
+  // configurações para resolver os avisos/warning no terminal
+  useNewUrlParser: true, 
+  useUnifiedTopology: true
+});
+```
+
+- Buscando mais informações na internet encontrei que substituindo o localhost por 0.0.0.0 volta a funcionar:
+
+``` JS
+const mongoose = require("mongoose");
+
+mongoose.Promise = global.Promise;
+
+module.exports = mongoose.connect("mongodb://0.0.0.0:27017/todo", {
+  // configurações para resolver os avisos/warning no terminal
+  useNewUrlParser: true, 
+  useUnifiedTopology: true
+});
+```
+
+## ODM e Criação da API REST
+
+- Primeiramente, dentro da pasta `src` vamos criar uma nova pasta chamada `api`; dentro da pasta `api` vamos criar um outro diretório chamado `todo`; e dentro da pasta `todo` vamos criar um arquivo chamado `todo.js`(arquivo responsável pela mapeamento do objeto para o documento do mongo) e um arquivo chamado `todoService.js`.
+
+### Configurações do arquivo todo.js
+
+- Dentro desse arquivo também iremos usar a API do `mongoose` juntamente com a API do Node RestFul que vai trazer algumas facilidades:
+
+``` JS
+const restful = require("node-restful");
+const mongoose = restful.mongoose; // o node-restful cria como se fosse uma casca "em cima" do mongoose resutando em uma api rest quase pronta
+```
+
+- O mapeamento que iremos fazer a seguir, independente se iremos trabalhar com `node-restful` ou diretamente com o `mongoose` é feito praticamente a mesma coisa.
+Primeiramente, iremos criar uma const `todoSchema` que irá receber uma nova instância do `mongoose.Schema`:
+
+``` JS
+const restful = require("node-restful");
+const mongoose = restful.mongoose; 
+
+const todoSchema = new mongoose.Schema({
+
+});
+```
+
+- Esse "schema" irá receber um campo/`field` descrição/`description` do tipo/`type` String, obrigatório/`required`; um campo/`field` feito/`done` do tipo/`type` Boolean, obrigatório/`required` e com valor padrão `false`; um campo/`field` data de criação da atividade/`createdAt` do tipo/`type` Date e com valor padrão/`default` data atual/`Date.now`:
+
+``` TSX
+const restful = require("node-restful");
+const mongoose = restful.mongoose; 
+
+const todoSchema = new mongoose.Schema({
+  description: { type: String, required: true },
+  done: { type: Boolean, required: true, default: false },
+  createdAt: { type: Date, default: Date.now }
+});
+```
+
+- Feito isso, vamos exportar esse módulo para que fique visível/acessível externamente chamando o `module.exports` o qual irá receber o que queremos exportar/expor, que nesse caso é o `restful.model` informando o nome do modelo que nesse caso é `Todo` e o schema `todoSchema`:
+
+``` JS
+const restful = require("node-restful");
+const mongoose = restful.mongoose; 
+
+const todoSchema = new mongoose.Schema({
+  description: { type: String, required: true },
+  done: { type: Boolean, required: true, default: false },
+  createdAt: { type: Date, default: Date.now }
+});
+
+module.exports = restful.model("Todo", todoSchema);
+```
+
+### Configurações do arquivo todoService.js
+
+- Nesse arquivo, iremos importar o schema do todo, para isso iremos fazer um `require` para o caminho relativo do arquivo `todo.js` armazenando na const `Todo`:
+
+``` JS
+const Todo = require("./todo");
+```
+
+- Feito isso, conseguimos usar o `Todo.methods` para habilitar os métodos que queremos na nossa API:
+
+``` JS
+const Todo = require("./todo");
+
+Todo.methods(["get", "post", "put", "delete"]);
+```
+
+- Por padrão, o `update` não valida algumas coisas então iremos realizar algumas mudanças no `updateOptions`. Primeiro, quando atualizarmos determinado registro lá no mongoDB queremos que na resposta/`response` seja devolvido o registro atualizado(por padrão o mongo devolve o registro antigo, o que não faz muito sentido), para isso iremos usar o `new: true`.
+E a segunda alteração é para as atualizações sejam validadas(por padrão o mongo não valida as atualizações, por exemplo, quando criarmos um registro o mongo irá aplicar as validações que definimos no `todoSchema`, porém ele não as aplica no update), para isso iremos usar o `runValidators: true`:
+
+``` JS
+const Todo = require("./todo");
+
+Todo.methods(["get", "post", "put", "delete"]);
+Todo.updateOptions({new: true, runValidators: true});
+```
+
+- Por fim, iremos exportar esse módulo para que fique visível/acessível externamente chamando o `module.exports` o qual irá receber o que queremos exportar/expor, que nesse caso é o `Todo` já com toda a parte da API Rest funcionando(o node-restful não só encapsula a parte relativa ao Express, que é criar os web servises, como também as chamadas para a API do mongodb):
+
+``` JS
+const Todo = require("./todo");
+
+Todo.methods(["get", "post", "put", "delete"]);
+Todo.updateOptions({new: true, runValidators: true});
+
+module.exports = Todo;
+```
