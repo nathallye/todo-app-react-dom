@@ -149,7 +149,7 @@ require("./config/server");
 const port = 3003;
 ```
 
-- Em seguida, iremos criar uma const `bodyParser` que irá requisitar/`require` da dependência `body-parser`, a qual irá fazer o "parser"/analisar o corpo da requisição:
+- Em seguida, iremos criar uma const `bodyParser` que irá requisitar/`require` a dependência `body-parser`, a qual irá fazer o "parser"/analisar o corpo da requisição:
 
 ``` JS
 const port = 3003;
@@ -157,7 +157,7 @@ const port = 3003;
 const bodyParser = require("body-parser");
 ```
 
-- Feito isso, iremos criar uma const `express` que irá requisitar/`require` da dependência `express`, o servidor web que roda "em cima" do nodeJS:
+- Feito isso, iremos criar uma const `express` que irá requisitar/`require` a dependência `express`, o servidor web que roda "em cima" do nodeJS:
 
 ``` JS
 const port = 3003;
@@ -233,7 +233,7 @@ npm run dev
 
 #### Configurações do arquivo database.js
 
-- Nesse arquivo iremos criar uma const `mongoose` que irá requisitar/`require` da dependência `mongoose`, responsável pelo mapeamento dos objetos JS para os documentos que vão para o mongodb, como também por fazer a conexão com o mongo e mandar os comandos pra lá(inserção, atualização, exclusão...):
+- Nesse arquivo iremos criar uma const `mongoose` que irá requisitar/`require` a dependência `mongoose`, responsável pelo mapeamento dos objetos JS para os documentos que vão para o mongodb, como também por fazer a conexão com o mongo e mandar os comandos pra lá(inserção, atualização, exclusão...):
 
 ``` JS
 const mongoose = require("mongoose");
@@ -401,4 +401,111 @@ Todo.methods(["get", "post", "put", "delete"]);
 Todo.updateOptions({new: true, runValidators: true});
 
 module.exports = Todo;
+```
+
+## Mapeamento das Rotas
+
+- Primeiramente, dentro da pasta `config` vamos criar um arquivo chamado `routes.js`(arquivo responsável pela mapeamento das rotas).
+
+### Configurações do arquivo routes.js
+
+- Nesse arquivo, iremos criar uma const `express` que irá requisitar/`require` a dependência `express`, o servidor web que roda "em cima" do nodeJS:
+
+``` JS
+const express = require("express");
+```
+
+- Agora, iremos receber o `server` do arquivo `server.js`, o qual é uma instância do `express`. 
+A forma no node que temos para receber um parâmetro, é usando a técnica de exportar uma função que recebe um parâmetro(que nesse caso é `server`) e quando importarmos essa função em outro arquivo teremos que passar uma instância de `server`:
+
+``` JS
+const express = require("express");
+
+module.exports = function(server) {
+
+};
+```
+
+- Feito isso, iremos fazer o mapeamento das rotas da nossa API. 
+Primeiramente, iremos criar uma const `router` que irá receber o `express.Router()`.
+Em seguida, iremos chamar o middleware `use` que será expecífico para rotas que começam a partir de `/api`, sempre que a rota começar com `/api` automáticamente o `router`(onde iremos configurar as rotas) será chamado:
+
+``` JS
+const express = require("express");
+
+module.exports = function(server) {
+  const router = express.Router();
+  server.use("/api", router);
+};
+```
+
+- Em seguida, iremos mapear as rotas de `todo`.
+Primeiramente, iremos importar as configurações dos métodos feitas no arquivo `todoService`, para isso iremos requisitar/`require` o arquivo `todoService` através do seu caminho relativo: 
+
+``` JS
+const express = require("express");
+
+module.exports = function(server) {
+  // API Routes
+  const router = express.Router();
+  server.use("/api", router);
+
+  // TODO Routes
+  const todoService = require("../api/todo/todoService");
+};
+```
+
+- Em seguida, iremos chamar o método `register` sobre o `todoService`, o qual irá usar todos os métodos que declaramos no arquivo `todoService.js`.
+E iremos passar como parâmetro o `router`, para criar dentro dele(o qual só será chamada quando a url começar com `api`, pois determinamos isso acima) o web service com a url base `/todos`:
+
+``` JS
+const express = require("express");
+
+module.exports = function(server) {
+  // API Routes
+  const router = express.Router();
+  server.use("/api", router);
+
+  // TODO Routes
+  const todoService = require("../api/todo/todoService");
+  todoService.register(router, "/todos");
+};
+```
+
+### Configurações do arquivo loader.js
+
+- Vamos voltar no arquivo `loader.js` e alterar para quando o `require` feito ao arquivo `config/server`(que contém as configurações do servidor) for executado seja retornado/armazenado em `server`:
+
+``` JS
+const server = require("./config/server");
+require("./config/database");
+```
+
+- Feito isso, vamos passar esse `server` como parâmetero para a configuração do router/`config/routes`:
+
+``` JS
+const server = require("./config/server");
+require("./config/database");
+require("./config/routes")(server);
+```
+
+### Configurações do arquivo server.js
+
+- Para concluir, vamos voltar no arquivo `server.js`, pois ele não está sendo exportado, portanto não está acessível externamente ocasionando um erro. Para isso, iremos chamar o `module.exports` o qual irá receber o que queremos exportar/expor, que nesse caso é o `server`:
+
+``` JS
+const port = 3003;
+
+const bodyParser = require("body-parser");
+const express = require("express");
+const server = express();
+
+server.use(bodyParser.urlencoded({ extended: true }));
+server.use(bodyParser.json());
+
+server.listen(port, function() {
+  console.log(`BACKEND is running on port ${port}.`);
+});
+
+module.exports = server;
 ```
