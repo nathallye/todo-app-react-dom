@@ -509,3 +509,64 @@ server.listen(port, function() {
 
 module.exports = server;
 ```
+
+## Habilitando o CORS
+
+- Primeiramente, na pasta `config` vamos criar o arquivo `cors.js`.
+
+### Configurações do arquivo cors.js
+
+- Vamos exportar uma função que será um middleware que irá receber como parâmetro uma requisição/`req`, um resposta/`res` e o próximo/`next`. Esse middleware irá retornar os cabeçalho/`header` do cors:
+
+``` JS
+module.exports = function(req, res, next) {
+  // podemos ser mais restritivos colocando apenas as urls que podem acessar nossa api
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, PATCH, DELETE");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next(); // irá chamar o próximo middleware
+};
+```
+
+### Configurações do arquivo server.js
+
+- Voltando no arquivo `server.js` iremos habilitar esse middleware. Para isso, iremos criar uma referência/const `allowCors` o qual será feito um `require` ao arquivo `cors`:
+
+``` JS
+const port = 3003;
+
+const bodyParser = require("body-parser");
+const express = require("express");
+const server = express();
+const allowCors = require("./cors");
+
+server.use(bodyParser.urlencoded({ extended: true }));
+server.use(bodyParser.json());
+
+server.listen(port, function() {
+  console.log(`BACKEND is running on port ${port}.`);
+});
+
+module.exports = server;
+```
+
+- E junto com os outros middlewares iremos chamar "em cima" de `server` o middleware `allowCors`:
+
+``` JS
+const port = 3003;
+
+const bodyParser = require("body-parser");
+const express = require("express");
+const server = express();
+const allowCors = require("./cors");
+
+server.use(bodyParser.urlencoded({ extended: true }));
+server.use(bodyParser.json());
+server.use(allowCors); // permite que a requisição possa vir de uma origem diferente do o local
+
+server.listen(port, function() {
+  console.log(`BACKEND is running on port ${port}.`);
+});
+
+module.exports = server;
+```
