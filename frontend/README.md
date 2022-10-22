@@ -156,11 +156,13 @@ module.exports = {
 }
 ```
 
-### Criação do index.html
+## Criação do index.html
 
 - Na raiz do projeto iremos criar uma pasta chamada `public` e dentro dessa pasta iremos criar o arquivo `index.html`.
 
-#### Estrutura do arquivo index.html
+### Estrutura do arquivo index.html
+
+- No arquivo `index.html` iremos criar uma extrutura html básica. Nele iremos criar uma `div`(com id app) na qual os componentes serão injetados mais a frente(através do arquivo `index.jsx` que irá injetar o componente principal `App.jsx` que irá conter todos os demais componentes da aplicação):
 
 ``` HTML
 <!DOCTYPE html>
@@ -176,4 +178,210 @@ module.exports = {
   <script src="app.js"></script>
 </body>
 </html>
+```
+
+## Criação do Componente App
+
+- Na raiz do projeto, vamos criar a pasta `src` e dentro dela a pasta `main`; dentro da pasta main vamos criar o arquivo `app.jsx`.
+
+### Estrutura do arquivo App.jsx
+
+- O componente App será um componente baseado em função:
+
+``` JSX
+// import - export -> padrão ecmascript 2011(ES6)
+// require -> padrão CommonJS (a maneira que o Node.js criou para importar e exportar modulos dentro de uma aplicação)
+// webpack suporta os dois formatos, mas como estamos trabalhando com react(js) iremos usar o import - export para padronizar
+import "modules/bootstrap/dist/css/bootstrap.min.css";
+import "modules/font-awesome/css/font-awesome.min.css"; // modules - apelido definido dentro de webpack.config para o diretório node_modules
+
+import React from "react"; // importarmos o React para usarmos o jsx
+
+function App(props) {
+  return (
+    <div className="container">
+      <h1>Teste</h1>
+    </div>
+  );
+}
+
+export default App;
+```
+
+## Criação do arquivo de entrada(entry) da aplicação: index.jsx
+
+- Na pasta `src` vamos criar o arquivo `index.jsx`.
+
+### Estrutura do arquivo index.jsx
+
+- No arquivo `index.jsx` além de importarmos o `React` para usarmos o jsx, iremos importar o `ReactDOM`, pois esse é o único arquivo que vai interagir diretamente com o DOM da página:
+
+``` JSX
+import React from "react";
+import ReactDOM  from "react-dom";
+```
+
+- Em seguida, iremos importar o componente principal da aplicação(`App.jsx`):
+
+``` JSX
+import React from "react";
+import ReactDOM  from "react-dom";
+import App from "./main/App";
+```
+
+- Para finalizar, iremos chamar a função `render` do `ReactDOM`, passando dois parâmetros, o primeiro é a referência do componente principal(`<App />`) e o segundo é o local do documento html onde esse componente vai ser injetado/renderizado(`document.getElementById("app")`):
+
+``` JSX
+import React from "react";
+import ReactDOM  from "react-dom";
+import App from "./main/App";
+
+ReactDOM.render(<App />, document.getElementById("app"));
+```
+
+## Criação do Componente Todo
+
+- Na raiz do projeto iremos criar uma pasta chamada `components` e dentro dela vamos criar uma pasta chamada `Todo`; dentro da pasta `Todo` o arquivo `Todo.jsx`.
+
+### Estrutura do arquivo Todo.jsx
+
+- O componente Todo será um componente baseado em classe, para facilitar o gerênciamento de estado:
+
+``` JSX
+import React, { Component } from "react";
+
+class Todo extends Component {
+  render() {
+    return (
+      <div>
+        <h1>Todo</h1>
+      </div>
+    );
+  }
+};
+
+export default Todo;
+```
+
+- Em seguida, para que aplicação passe a usar esse componente vamos no componente principal(App.jsx) e nele iremos importar o componente Todo:
+
+``` JSX
+import "modules/bootstrap/dist/css/bootstrap.min.css";
+import "modules/font-awesome/css/font-awesome.min.css"; 
+
+import React from "react";
+import Todo from "../../components/Todo";
+
+function App(props) {
+  return (
+    <div className="container">
+      <Todo />
+    </div>
+  );
+}
+
+export default App;
+```
+
+## Criação do Componente About
+
+- Dentro da pasta `components` vamos criar uma pasta chamada `About` e dentro dela iremos criar o arquivo `About.jsx`.
+
+### Estrutura do arquivo About.jsx
+
+- O componente About será um componente baseado em função:
+
+``` JSX
+import React from "react";
+
+function About(props) {
+  return (
+    <div>
+      <h1>About</h1>
+    </div>
+  )
+}
+
+export default About;
+```
+
+- Em seguida, para que aplicação passe a usar esse componente vamos no componente principal(App.jsx) e nele iremos importar o componente About:
+
+``` JSX
+import "modules/bootstrap/dist/css/bootstrap.min.css";
+import "modules/font-awesome/css/font-awesome.min.css"; 
+
+import React from "react";
+import Todo from "../../components/Todo";
+import About from "../../components/About";
+
+function App(props) {
+  return (
+    <div className="container">
+      <Todo />
+      <About />
+    </div>
+  );
+}
+
+export default App;
+```
+
+## Criação do Componente Menu
+
+- Dentro da pasta `components` vamos criar uma pasta chamada `Menu` e dentro dela iremos criar o arquivo `Menu.jsx`.
+
+### Estrutura do arquivo Menu.jsx
+
+- O componente Menu será um componente baseado em função, já aplicando alguns estilos do bootstrap:
+
+``` JSX
+import React from "react";
+
+function Menu() {
+  return (
+    <nav className="navbar navbar-inverse bg-inverse">
+      <div className="container">
+        <div className="navbar-header">
+          <a className="navbar-brand" href="#">
+            <i className="fa fa-calendar-check-o">TodoApp</i>
+          </a>
+        </div>
+
+        <div id="navbar" className="navbar-collapse collapse">
+          <ul className="nav navbar-nav">
+            <li><a href="#/todos">Tarefas</a></li>
+            <li><a href="#/todos">Sobre</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+  )
+}
+
+export default Menu;
+```
+
+- Em seguida, para que aplicação passe a usar esse componente vamos no componente principal(App.jsx) e nele iremos importar o componente Menu:
+
+``` JSX
+import "modules/bootstrap/dist/css/bootstrap.min.css";
+import "modules/font-awesome/css/font-awesome.min.css";
+
+import React from "react";
+import Todo from "../../components/Todo";
+import About from "../../components/About";
+import Menu from "../../components/Menu";
+
+function App(props) {
+  return (
+    <div className="container">
+      <Menu />
+      <Todo />
+      <About />
+    </div>
+  );
+}
+
+export default App;
 ```
