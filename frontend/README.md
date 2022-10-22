@@ -351,7 +351,7 @@ function Menu() {
         <div id="navbar" className="navbar-collapse collapse">
           <ul className="nav navbar-nav">
             <li><a href="#/todos">Tarefas</a></li>
-            <li><a href="#/todos">Sobre</a></li>
+            <li><a href="#/about">Sobre</a></li>
           </ul>
         </div>
       </div>
@@ -379,6 +379,65 @@ function App(props) {
       <Menu />
       <Todo />
       <About />
+    </div>
+  );
+}
+
+export default App;
+```
+
+## Configuração das Rotas com React Router
+
+- Dentro da pasta `main` iremos criar o arquivo `Routes.jsx`.
+
+### Estrutura do arquivo Routes.jsx
+
+- O componente Routes será um componente baseado em função:
+
+``` JSX
+import React from "react";
+// Na nova versão do do react-router ocorreram algumas alterações bem significativas em seus componentes. Vale ler a documentação quando for usá-la(https://reactrouter.com).
+// Com o nextJS não precisamos configurar as rotas com manualmente com o react-router ele já trás isso configurado, basta criar os arquivos dentro pages que suas rotas seram configuradas automáticamente.
+import { Router, Route, Redirect, hashHistory } from "react-router";
+
+import Todo from "../../components/Todo";
+import About from "../../components/About";
+
+function Routes(props) {
+  return (
+    <Router history={hashHistory}>
+      <Route path="/todos" component={Todo} />
+      <Route path="/about" component={About} />
+      <Redirect from="*" to="/todos" />
+    </Router>
+  )
+}
+
+export default Routes;
+```
+
+- Em seguida, para que aplicação passe a usar esse componente vamos no componente principal(App.jsx) e nele iremos importar o componente Routes:
+
+``` JSX
+// import - export -> padrão ecmascript 2011(ES6)
+// require -> padrão CommonJS (a maneira que o Node.js criou para importar e exportar modulos dentro de uma aplicação)
+// webpack suporta os dois formatos, mas como estamos trabalhando com react(js) iremos usar o import - export para padronizar
+import "modules/bootstrap/dist/css/bootstrap.min.css";
+import "modules/font-awesome/css/font-awesome.min.css"; // modules - apelido definido dentro de webpack.config para o diretório node_modules
+
+import React from "react";
+// import Todo from "../../components/Todo";
+// import About from "../../components/About";
+import Menu from "../../components/Menu";
+import Routes from "./Routes";
+
+function App(props) {
+  return (
+    <div className="container">
+      <Menu />
+      {/* <Todo />
+      <About /> */}
+      <Routes />
     </div>
   );
 }
