@@ -202,7 +202,7 @@ function App(props) {
     <div className="container">
       <h1>Teste</h1>
     </div>
-  );
+  )
 }
 
 export default App;
@@ -256,9 +256,9 @@ class Todo extends Component {
       <div>
         <h1>Todo</h1>
       </div>
-    );
+    )
   }
-};
+}
 
 export default Todo;
 ```
@@ -277,7 +277,7 @@ function App(props) {
     <div className="container">
       <Todo />
     </div>
-  );
+  )
 }
 
 export default App;
@@ -321,7 +321,7 @@ function App(props) {
       <Todo />
       <About />
     </div>
-  );
+  )
 }
 
 export default App;
@@ -380,7 +380,7 @@ function App(props) {
       <Todo />
       <About />
     </div>
-  );
+  )
 }
 
 export default App;
@@ -439,8 +439,75 @@ function App(props) {
       <About /> */}
       <Routes />
     </div>
-  );
+  )
 }
 
 export default App;
+```
+
+## Criação do Componente PageHeader
+
+- Dentro da pasta `components` vamos criar uma pasta chamada `PageHeader` e dentro dela iremos criar o arquivo `PageHeader.jsx`.
+
+### Estrutura do arquivo PageHeader.jsx
+
+- O componente PageHeader será um componente baseado em função, já aplicando alguns estilos do bootstrap:
+
+``` JSX
+import React from "react";
+
+function PageHeader(props) {
+  return (
+    <header className="page-header">
+      <h2>{props.name} <small>{props.small}</small></h2> {/*Vamos esperar receber via props no componente principal name e small*/}
+    </header>
+  )
+}
+
+export default PageHeader;
+```
+
+- Em seguida, para que aplicação passe a usar esse componente, vamos no componente `Todo` e nele iremos importar o componente PageHeader passando as `props` esperadas:
+
+``` JSX
+import React, { Component } from "react";
+
+import PageHeader from "../PageHeader";
+
+class Todo extends Component {
+  render() {
+    return (
+      <div>
+        <PageHeader name="Tarefas" small="Cadastro" />
+      </div>
+    )
+  }
+}
+
+export default Todo;
+```
+
+- E também vamos no componente `About` e nele iremos importar o componente PageHeader passando as `props` esperadas:
+
+``` JSX
+import React from "react";
+
+import PageHeader from "../PageHeader";
+
+function About(props) {
+  return (
+    <div>
+      <PageHeader name="Sobre" small="Nós" />
+
+      <h2>Nossa história</h2>
+      <p>Minions ipsum uuuhhh hahaha baboiii uuuhhh gelatooo daa belloo!</p>
+      <h2>Missão e Visão</h2>
+      <p>Minions ipsum uuuhhh hahaha baboiii uuuhhh gelatooo daa belloo!</p>
+      <h2>Imprensa</h2>
+      <p>Minions ipsum uuuhhh hahaha baboiii uuuhhh gelatooo daa belloo!</p>
+    </div>
+  )
+}
+
+export default About;
 ```
