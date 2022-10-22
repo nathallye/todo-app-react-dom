@@ -5,8 +5,6 @@ import "modules/bootstrap/dist/css/bootstrap.min.css";
 import "modules/font-awesome/css/font-awesome.min.css"; // modules - apelido definido dentro de webpack.config para o diretório node_modules
 
 import React from "react";
-// import Todo from "../../components/Todo";
-// import About from "../../components/About";
 import Menu from "../../components/Menu";
 import Routes from "./Routes";
 
@@ -14,8 +12,6 @@ function App(props) {
   return (
     <div className="container">
       <Menu />
-      {/* <Todo />
-      <About /> */}
       <Routes />
     </div>
   );
