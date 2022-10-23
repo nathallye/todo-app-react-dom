@@ -611,4 +611,121 @@ class Todo extends Component {
 export default Todo;
 ```
 
+## Criação do Componente Grid
 
+- Dentro da pasta `components` vamos criar uma pasta chamada `Grid` e dentro dela iremos criar o arquivo `Grid.jsx`.
+
+### Estrutura do arquivo Grid.jsx
+
+- O componente Grid será um componente baseado em classe, nele iremos passar uma lista de números(até 4) e converte-los no padrãos de 4 colunas do bootstrap(`col-` `xs`[extra small ex.: celular], `sm`[small ex.: tablets], `md`[medium ex.: ipad surface] `lg`[large ex.: desktop]) través da função `toCssClasses`:
+
+``` JSX
+import React, { Component } from "react";
+
+class Grid extends Component {
+
+  toCssClasses(numbers) {
+    const cols = numbers ? numbers.split(" ") : []; // numbers existe ? se verdadeiro aplicar o método split no array numbers, senão : retornar um array vazio 
+    let classes = "";
+
+    if(cols[0]) classes+= `col-xs-${cols[0]}`;
+    if(cols[1]) classes+= `col-sm-${cols[1]}`;
+    if(cols[2]) classes+= `col-md-${cols[2]}`;
+    if(cols[3]) classes+= `col-lg-${cols[3]}`;
+
+    return classes;
+  }
+
+  render() {
+    const gridClasses = this.toCssClasses(this.props.cols || 12); // se cols não foi setado cols será 12
+
+    return (
+      <div>
+        {this.props.children}
+      </div>
+    )
+  }
+}
+
+export default Grid;
+```
+
+- Feito isso, podemos voltar no componente `TodoForm`, importar o componente Grid e substituir divs com as definições das classes bootstrap para colunas pela referência do componente `Grid` passando via props o tamanho das colunas:
+
+``` JSX
+import React from "react";
+
+import Grid from "../Grid";
+
+function TodoForm(props) {
+  return (
+    <div role="form" className="todoForm">
+      <Grid cols="12 9 10">
+        <input type="text" id="description" className="form-control" 
+          placeholder="Adicione uma tarefa" />
+      </Grid>
+        
+
+      <Grid cols="12 3 2">
+        <button className="btn btn-primary">
+          <i className="fa fa-plus"></i>
+        </button>
+      </Grid>
+    </div>
+  )
+}
+
+export default TodoForm;
+```
+
+## Criação do Componente Grid
+
+- Dentro da pasta `components` vamos criar uma pasta chamada `Button` e dentro dela iremos criar o arquivo `Button.jsx`.
+
+### Estrutura do arquivo Grid.jsx
+
+- O componente Button será um componente baseado em função, nele iremos esperar receber via props o estilo/`style`, a função `onClick` e o ícone/`icon` do botão:
+
+``` JSX
+import React from "react";
+
+function Button(props) {
+
+  const style = props.style ? props.style : "secondary";
+  const icon = props.icon ? props.icon : "heart";
+
+  return (
+    <button className={`btn btn-${style}`} onClick={props.onClick}>
+      <i className={`fa fa-${icon}`}></i>
+    </button>
+  )
+}
+
+export default Button;
+```
+
+- Feito isso, podemos voltar no componente `TodoForm`, importar o componente Button e substitui o button com as definições das classes bootstrap para `button` e `i` pela referência do componente `Button` passando via props o style e o icon:
+
+``` JSX
+import React from "react";
+
+import Grid from "../Grid";
+import Button from "../Button";
+
+function TodoForm(props) {
+  return (
+    <div role="form" className="todoForm">
+      <Grid cols="12 9 10">
+        <input type="text" id="description" className="form-control" 
+          placeholder="Adicione uma tarefa" />
+      </Grid>
+        
+      <Grid cols="12 3 2">
+        <Button style="primary" icon="plus"></Button>
+      </Grid>
+    </div>
+  )
+}
+
+export default TodoForm;
+```
