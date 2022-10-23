@@ -511,3 +511,104 @@ function About(props) {
 
 export default About;
 ```
+
+## Criação do Componente TodoForm
+
+- Dentro da pasta `components` vamos criar uma pasta chamada `TodoForm` e dentro dela iremos criar o arquivo `TodoForm.jsx`.
+
+### Estrutura do arquivo TodoForm.jsx
+
+- O componente TodoForm será um componente baseado em função, já aplicando alguns estilos do bootstrap:
+
+``` JSX
+import React from "react";
+
+function TodoForm(props) {
+  return (
+    <div role="form" className="todoForm">
+      <div className="col-xs-12 col-sm-9 col-md-10">
+        <input type="text" id="description" className="form-control" 
+          placeholder="Adicione uma tarefa" />
+      </div>
+
+      <div className="col-xs-12 col-sm-3 col-md-2">
+        <button className="btn btn-primary">
+          <i className="fa fa-plus"></i>
+        </button>
+      </div>
+    </div>
+  )
+}
+
+export default TodoForm;
+```
+
+- Em seguida, para que aplicação passe a usar esse componente, vamos no componente `Todo` e nele iremos importar o componente TodoForm:
+
+``` JSX
+import React, { Component } from "react";
+
+import PageHeader from "../PageHeader";
+import TodoForm from "../TodoForm/TodoForm";
+
+class Todo extends Component {
+  render() {
+    return (
+      <div>
+        <PageHeader name="Tarefas" small="Cadastro" />
+        <TodoForm />
+      </div>
+    )
+  }
+}
+
+export default Todo;
+```
+
+## Criação do Componente TodoList
+
+- Dentro da pasta `components` vamos criar uma pasta chamada `TodoList` e dentro dela iremos criar o arquivo `TodoList.jsx`.
+
+### Estrutura do arquivo TodoList.jsx
+
+- O componente TodoList será um componente baseado em função:
+
+``` JSX
+import React from "react";
+
+function TodoList(props) {
+  return (
+    <div>
+      <h1>List</h1>
+    </div>
+  )
+}
+
+export default TodoList;
+```
+
+- Em seguida, para que aplicação passe a usar esse componente, vamos no componente `Todo` e nele iremos importar o componente TodoList:
+
+``` JSX
+import React, { Component } from "react";
+
+import PageHeader from "../PageHeader";
+import TodoForm from "../TodoForm";
+import TodoList from "../TodoList";
+
+class Todo extends Component {
+  render() {
+    return (
+      <div>
+        <PageHeader name="Tarefas" small="Cadastro" />
+        <TodoForm />
+        <TodoList />
+      </div>
+    )
+  }
+}
+
+export default Todo;
+```
+
+
