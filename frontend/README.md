@@ -628,10 +628,10 @@ class Grid extends Component {
     const cols = numbers ? numbers.split(" ") : []; // numbers existe ? se verdadeiro aplicar o método split no array numbers, senão : retornar um array vazio 
     let classes = "";
 
-    if(cols[0]) classes+= `col-xs-${cols[0]}`;
-    if(cols[1]) classes+= `col-sm-${cols[1]}`;
-    if(cols[2]) classes+= `col-md-${cols[2]}`;
-    if(cols[3]) classes+= `col-lg-${cols[3]}`;
+    if(cols[0]) classes += `col-xs-${cols[0]}`;
+    if(cols[1]) classes += ` col-sm-${cols[1]}`;
+    if(cols[2]) classes += ` col-md-${cols[2]}`;
+    if(cols[3]) classes += ` col-lg-${cols[3]}`;
 
     return classes;
   }
@@ -639,8 +639,12 @@ class Grid extends Component {
   render() {
     const gridClasses = this.toCssClasses(this.props.cols || 12); // se cols não foi setado cols será 12
 
+    console.log(gridClasses);
+    console.log(this.props.cols);
+    console.log(this.props);
+
     return (
-      <div>
+      <div className={gridClasses}>
         {this.props.children}
       </div>
     )
@@ -721,11 +725,275 @@ function TodoForm(props) {
       </Grid>
         
       <Grid cols="12 3 2">
-        <Button style="primary" icon="plus"></Button>
+        <Button style="primary" icon="plus" />
       </Grid>
     </div>
   )
 }
 
 export default TodoForm;
+```
+
+## Evento adicionar/add tarefa
+
+- Voltaremos no arquivo `TodoForm.jsx`.
+
+### Alterações no arquivo TododForm.jsx 
+
+- Iremos passar para a propriedade `onClick` do `Button` uma função e essa função iremos receber via `props` do componente pai(componente pai de `TodoForm` é o `Todo`) essa função será passada pelo atributo chamado `handleAdd`(a função irá manipular o evento de adicionar uma tarefa):
+
+``` JSX
+import React from "react";
+
+import Grid from "../Grid";
+import Button from "../Button";
+
+function TodoForm(props) {
+  return (
+    <div role="form" className="todoForm">
+      <Grid cols="12 9 10">
+        <input type="text" id="description" className="form-control" 
+          placeholder="Adicione uma tarefa" />
+      </Grid>
+        
+      <Grid cols="12 3 2">
+        <Button style="primary" icon="plus" onClick={props.handleAdd} />
+      </Grid>
+    </div>
+  )
+}
+
+export default TodoForm;
+```
+
+- Feito isso, iremos para o arquivo `Todo.jsx`.
+
+### Aterações no arquivo Todo.jsx 
+
+- Nesse componente iremos criar o método(função) `handleAdd()` que iremos passar via props para o componente `TodoForm` através do atributo `handleAdd`(e o componente TodoForm irá passar essa função para o evento onClick do componente Button, via props);
+E criar um `constructor` para que `this.handleAdd` aponte para o objeto atual através do método `bind`:
+
+``` JSX
+import React, { Component } from "react";
+
+import PageHeader from "../PageHeader";
+import TodoForm from "../TodoForm";
+import TodoList from "../TodoList";
+
+class Todo extends Component {
+
+  constructor(props) {
+    // com o construtor, idenpendente de quem irá chamar, o this irá apontar para a própria classe, nesse caso é Todo
+    super(props);
+    this.handleAdd = this.handleAdd.bind(this); 
+  }
+
+  handleAdd() {
+    // console.log(this); // => null - para resolver isso iremos criar um construtor
+  }
+
+  render() {
+    return (
+      <div>
+        <PageHeader name="Tarefas" small="Cadastro" />
+        <TodoForm handleAdd={this.handleAdd} />
+        <TodoList />
+      </div>
+    )
+  }
+}
+
+export default Todo;
+```
+
+## Evento onChange do input
+
+- Voltaremos no arquivo `TodoForm.jsx`.
+
+### Alterações no arquivo TodoForm.jsx
+
+- No `input` vamos adicionar um `value` o qual iremos receber via props do componente pai(Todo) dentro do atributo `description`; 
+E um evento `onChange` no qual iremos passar uma função que iremos receber via props do componente pai(Todo) dentro do atributo `handleChange`:
+
+``` JSX
+import React from "react";
+
+import Grid from "../Grid";
+import Button from "../Button";
+
+function TodoForm(props) {
+  return (
+    <div role="form" className="todoForm">
+      <Grid cols="12 9 10">
+        <input type="text" id="description" className="form-control" 
+          placeholder="Adicione uma tarefa" onChange={props.handleChange} 
+          value={props.description} />
+      </Grid>
+        
+      <Grid cols="12 3 2">
+        <Button style="primary" icon="plus" onClick={props.handleAdd}></Button>
+      </Grid>
+    </div>
+  )
+}
+
+export default TodoForm;
+```
+
+- Feito isso, iremos para o arquivo `Todo.jsx`.
+
+### Alterações no arquivo Todo.jsx
+
+- Dentro do `constructor` vamos definir o estado inicial/`state` do objeto/classe Todo:
+
+``` JSX
+import React, { Component } from "react";
+
+import PageHeader from "../PageHeader";
+import TodoForm from "../TodoForm";
+import TodoList from "../TodoList";
+
+class Todo extends Component {
+
+  constructor(props) {
+    super(props);
+    this.state = { description: "", list: [] };
+
+    this.handleAdd = this.handleAdd.bind(this); 
+  }
+
+  handleAdd() {
+
+  }
+
+  render() {
+    return (
+      <div>
+        <PageHeader name="Tarefas" small="Cadastro" />
+        <TodoForm handleAdd={this.handleAdd} />
+        <TodoList />
+      </div>
+    )
+  }
+}
+
+export default Todo;
+```
+
+- Em seguida, iremos criar o método(função) `handleChange(e)` que iremos passar via props para o componente `TodoForm` através do atributo `handleChange` para o evento `onChange` do `input`;
+E no `constructor` iremos aplicar o método `bind` para que `this.handleChange` aponte para o objeto atual:
+
+``` JSX
+import React, { Component } from "react";
+
+import PageHeader from "../PageHeader";
+import TodoForm from "../TodoForm";
+import TodoList from "../TodoList";
+
+class Todo extends Component {
+
+  constructor(props) {
+    // com o construtor, idenpendente de quem irá chamar, o this irá apontar para a própria classe, nesse caso é Todo
+    super(props);
+    this.state = { description: "", list: [] };
+
+    this.handleChange = this.handleChange.bind(this);
+    this.handleAdd = this.handleAdd.bind(this); 
+  }
+
+  handleChange(e) {
+    this.setState({ ...this.state, description: e.target.value }); // iremos pegar com o operador spreed o estado atual, e passar somente para o description o valor capturado no evento
+  }
+
+  handleAdd() {
+    console.log(this.state.description);
+  }
+
+  render() {
+    return (
+      <div>
+        <PageHeader name="Tarefas" small="Cadastro" />
+        <TodoForm description={this.state.description} 
+          handleChange={this.handleChange}
+          handleAdd={this.handleAdd} />
+        <TodoList />
+      </div>
+    )
+  }
+}
+
+export default Todo;
+```
+
+## Evento adicionar/add tarefa(integração com backend)
+
+- No arquivo `Todo.jsx`.
+
+### Alterações no arquivo Todo.jsx
+
+- Primeiramente, vamos importar o `axios`, em seguida iremos criar uma const que irá receber a URL base da API no backend:
+
+``` JSX
+import React, { Component } from "react";
+import axios from "axios";
+
+import PageHeader from "../PageHeader";
+import TodoForm from "../TodoForm";
+import TodoList from "../TodoList";
+
+const URL = "http://localhost:3003/api/todos";
+
+class Todo extends Component {
+  // [...]
+}
+
+export default Todo;
+```
+
+- Em seguida, no método `handleAdd` iremos fazer o envio através do método `post` das novas tarefas adicionadas:
+
+``` JSX
+import React, { Component } from "react";
+import axios from "axios";
+
+import PageHeader from "../PageHeader";
+import TodoForm from "../TodoForm";
+import TodoList from "../TodoList";
+
+const URL = "http://localhost:3003/api/todos";
+
+class Todo extends Component {
+
+  constructor(props) {
+    super(props);
+    this.state = { description: "", list: [] };
+
+    this.handleChange = this.handleChange.bind(this);
+    this.handleAdd = this.handleAdd.bind(this); 
+  }
+
+  handleChange(e) {
+    this.setState({ ...this.state, description: e.target.value }); 
+  }
+
+  handleAdd() {
+    const description = this.state.description;
+    axios.post(URL, { description })
+      .then(resp => console.log("Funcionou"));
+  }
+
+  render() {
+    return (
+      <div>
+        <PageHeader name="Tarefas" small="Cadastro" />
+        <TodoForm description={this.state.description} 
+        handleChange={this.handleChange}
+        handleAdd={this.handleAdd} />
+        <TodoList />
+      </div>
+    )
+  }
+}
+
+export default Todo;
 ```

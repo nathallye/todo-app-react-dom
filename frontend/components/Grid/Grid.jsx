@@ -17,10 +17,6 @@ class Grid extends Component {
   render() {
     const gridClasses = this.toCssClasses(this.props.cols || 12); // se cols não foi setado cols será 12
 
-    console.log(gridClasses);
-    console.log(this.props.cols);
-    console.log(this.props);
-
     return (
       <div className={gridClasses}>
         {this.props.children}
