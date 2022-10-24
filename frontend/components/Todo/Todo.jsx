@@ -24,7 +24,7 @@ class Todo extends Component {
 
   handleAdd() {
     // console.log(this); // => null - para resolver isso iremos criar um construtor
-    console.log(this.state.description);
+    // console.log(this.state.description);
     const description = this.state.description;
     axios.post(URL, { description })
       .then(resp => console.log("Funcionou"));
