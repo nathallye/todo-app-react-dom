@@ -1,10 +1,37 @@
 import React from "react";
+import Button from "../Button";
 
 function TodoList(props) {
+
+  console.log(props);
+
+  const renderRows = () => {
+    const list = props.list ? props.list : []; // se props.list existir list recebe props.list senão um array vazio
+
+    return list.map(todo => (
+      // _id gerado pelo próprio mongo
+      <tr key={todo._id}> 
+        <td>{todo.description}</td>
+        <td>
+          <Button style="danger" icon="trash-o" 
+            onClick={() => props.handleRemove(todo)} />
+        </td>
+      </tr>
+    ));
+  }
+
+  console.log("render", renderRows())
   return (
-    <div>
-      <h1>List</h1>
-    </div>
+    <table className="table">
+      <thead>
+        <tr>
+          <th>Descrição</th>
+        </tr>
+      </thead>
+      <tbody>
+        {renderRows()}
+      </tbody>
+    </table>
   )
 }
 

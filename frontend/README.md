@@ -997,3 +997,233 @@ class Todo extends Component {
 
 export default Todo;
 ```
+
+## Consulta e Exclusão de Todo's
+
+- No arquivo `Todo.jsx`.
+
+### Alterações no arquivo Todo.jsx
+
+- Iremos criar um método `refesh` que irá pegar a lista mais atualizada de tarefas ordená-las pela dada de criação:
+
+``` JSX
+import React, { Component } from "react";
+import axios from "axios";
+
+import PageHeader from "../PageHeader";
+import TodoForm from "../TodoForm";
+import TodoList from "../TodoList";
+
+const URL = "http://localhost:3003/api/todos";
+
+class Todo extends Component {
+
+  constructor(props) {
+    super(props);
+    this.state = { description: "", list: [] };
+
+    this.handleChange = this.handleChange.bind(this);
+    this.handleAdd = this.handleAdd.bind(this); 
+
+    this.refresh();
+  }
+
+  refresh() { 
+    axios.get(`${URL}?sort=-createdAt`)
+      .then(resp => this.setState({...this.state, description: "", list: resp.data}));
+  }
+
+  handleChange(e) {
+    this.setState({ ...this.state, description: e.target.value }); 
+  }
+
+  handleAdd() {
+    const description = this.state.description;
+    axios.post(URL, { description })
+      .then(resp => console.log("Funcionou"));
+  }
+
+  render() {
+    return (
+      <div>
+        <PageHeader name="Tarefas" small="Cadastro" />
+        <TodoForm description={this.state.description} 
+        handleChange={this.handleChange}
+        handleAdd={this.handleAdd} />
+        <TodoList />
+      </div>
+    )
+  }
+}
+
+export default Todo;
+```
+
+- Iremos também fazer uma alteração no método `handleAdd`, ao invés de exibir um console quando for concluída a adição da tarefa iremos chamar o método `refresh` para que sempre que uma nova tarefa for adicionada seja exibida a lista de tarefas atualização(já com o novo item):
+
+``` JSX
+import React, { Component } from "react";
+import axios from "axios";
+
+import PageHeader from "../PageHeader";
+import TodoForm from "../TodoForm";
+import TodoList from "../TodoList";
+
+const URL = "http://localhost:3003/api/todos";
+
+class Todo extends Component {
+
+  constructor(props) {
+    // o construtor é executado assim que a página é carregada
+    super(props);
+    this.state = { description: "", list: [] };
+
+    this.handleChange = this.handleChange.bind(this);
+    this.handleAdd = this.handleAdd.bind(this); 
+
+    this.refresh();
+  }
+
+  refresh() { 
+    axios.get(`${URL}?sort=-createdAt`)
+      .then(resp => this.setState({...this.state, description: "", list: resp.data}));
+  }
+
+  handleChange(e) {
+    this.setState({ ...this.state, description: e.target.value }); 
+  }
+
+  handleAdd() {
+    const description = this.state.description;
+    axios.post(URL, { description })
+      .then(resp => this.refresh());
+  }
+
+  render() {
+    return (
+      <div>
+        <PageHeader name="Tarefas" small="Cadastro" />
+        <TodoForm description={this.state.description} 
+        handleChange={this.handleChange}
+        handleAdd={this.handleAdd} />
+        <TodoList />
+      </div>
+    )
+  }
+}
+
+export default Todo;
+```
+
+### Alterações no arquivo TodoList.jsx
+
+- Para que essas alterações reflitam em tela, iremos voltar no componente TodoList e nele vamos criar uma tabela com aplicação de estilos do bootstrap; 
+Essa tabela irá interar o array de objetos `list` que esperamos receber via props; 
+Além disso o `Button` de excluir de cada item/`todo` no evento de no atributo onClick(que envia para o evento onClick do elemento button) espera receber via props a função `handleRemove`:
+
+``` JSX
+import React from "react";
+import Button from "../Button";
+
+function TodoList(props) {
+
+  console.log(props);
+
+  const renderRows = () => {
+    const list = props.list ? props.list : []; // se props.list existir list recebe props.list senão um array vazio
+
+    return list.map(todo => (
+      // _id gerado pelo próprio mongo
+      <tr key={todo._id}> 
+        <td>{todo.description}</td>
+        <td>
+          <Button style="danger" icon="trash-o" 
+            onClick={() => props.handleRemove(todo)} /> 
+        </td>
+      </tr>
+    ));
+  }
+
+  console.log("render", renderRows())
+  return (
+    <table className="table">
+      <thead>
+        <tr>
+          <th>Descrição</th>
+        </tr>
+      </thead>
+      <tbody>
+        {renderRows()}
+      </tbody>
+    </table>
+  )
+}
+
+export default TodoList;
+```
+
+### Alterações no arquivo Todo.jsx
+
+- Feito isso, iremos voltar no arquivo `Todo.jsx` e passar via props a lista/`list` e a função `handleRemove()` que o componente `TodoList` espera receber para renderizar na tabela:
+
+``` JSX
+import React, { Component } from "react";
+import axios from "axios";
+
+import PageHeader from "../PageHeader";
+import TodoForm from "../TodoForm";
+import TodoList from "../TodoList";
+
+const URL = "http://localhost:3003/api/todos";
+
+class Todo extends Component {
+
+  constructor(props) {
+    // o construtor é executado assim que a página é carregada
+    // com o construtor, idenpendente de quem irá chamar, o this irá apontar para a própria classe, nesse caso é Todo
+    super(props);
+    this.state = { description: "", list: [] };
+
+    this.handleChange = this.handleChange.bind(this);
+    this.handleAdd = this.handleAdd.bind(this);
+    this.handleRemove = this.handleRemove.bind(this); 
+
+    this.refresh();
+  }
+
+  refresh() { 
+    axios.get(`${URL}?sort=-createdAt`)
+      .then(resp => this.setState({...this.state, description: "", list: resp.data}));
+  }
+
+  handleChange(e) {
+    this.setState({ ...this.state, description: e.target.value }); 
+  }
+
+  handleAdd() {
+    const description = this.state.description;
+    axios.post(URL, { description })
+      .then(resp => this.refresh());
+  }
+
+
+  handleRemove(todo) {
+    axios.delete(`${URL}/${todo._id}`)
+      .then(resp => this.refresh());
+  }
+
+  render() {
+    return (
+      <div>
+        <PageHeader name="Tarefas" small="Cadastro" />
+        <TodoForm description={this.state.description} 
+        handleChange={this.handleChange}
+        handleAdd={this.handleAdd} />
+        <TodoList list={this.state.list} handleRemove={this.handleRemove} />
+      </div>
+    )
+  }
+}
+
+export default Todo;
+```

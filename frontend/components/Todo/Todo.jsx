@@ -10,12 +10,21 @@ const URL = "http://localhost:3003/api/todos";
 class Todo extends Component {
 
   constructor(props) {
+    // o construtor é executado assim que a página é carregada
     // com o construtor, idenpendente de quem irá chamar, o this irá apontar para a própria classe, nesse caso é Todo
     super(props);
     this.state = { description: "", list: [] };
 
     this.handleChange = this.handleChange.bind(this);
-    this.handleAdd = this.handleAdd.bind(this); 
+    this.handleAdd = this.handleAdd.bind(this);
+    this.handleRemove = this.handleRemove.bind(this); 
+
+    this.refresh();
+  }
+
+  refresh() { 
+    axios.get(`${URL}?sort=-createdAt`)
+      .then(resp => this.setState({...this.state, description: "", list: resp.data}));
   }
 
   handleChange(e) {
@@ -27,7 +36,13 @@ class Todo extends Component {
     // console.log(this.state.description);
     const description = this.state.description;
     axios.post(URL, { description })
-      .then(resp => console.log("Funcionou"));
+      .then(resp => this.refresh());
+  }
+
+
+  handleRemove(todo) {
+    axios.delete(`${URL}/${todo._id}`)
+      .then(resp => this.refresh());
   }
 
   render() {
@@ -37,7 +52,7 @@ class Todo extends Component {
         <TodoForm description={this.state.description} 
         handleChange={this.handleChange}
         handleAdd={this.handleAdd} />
-        <TodoList />
+        <TodoList list={this.state.list} handleRemove={this.handleRemove} />
       </div>
     )
   }
