@@ -11,9 +11,13 @@ function TodoList(props) {
     return list.map(todo => (
       // _id gerado pelo próprio mongo
       <tr key={todo._id}> 
-        <td>{todo.description}</td>
+        <td className={todo.done ? "markedAsDone" : ""}>{todo.description}</td>
         <td>
-          <Button style="danger" icon="trash-o" 
+          <Button style="success" icon="check" hide={todo.done} 
+            onClick={() => props.handleMarkAsDone(todo)} />
+          <Button style="warning" icon="undo" hide={!todo.done}
+            onClick={() => props.handleMarkAsPending(todo)} />
+          <Button style="danger" icon="trash-o" hide={!todo.done} 
             onClick={() => props.handleRemove(todo)} />
         </td>
       </tr>

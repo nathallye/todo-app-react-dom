@@ -987,8 +987,8 @@ class Todo extends Component {
       <div>
         <PageHeader name="Tarefas" small="Cadastro" />
         <TodoForm description={this.state.description} 
-        handleChange={this.handleChange}
-        handleAdd={this.handleAdd} />
+          handleChange={this.handleChange}
+          handleAdd={this.handleAdd} />
         <TodoList />
       </div>
     )
@@ -1048,8 +1048,8 @@ class Todo extends Component {
       <div>
         <PageHeader name="Tarefas" small="Cadastro" />
         <TodoForm description={this.state.description} 
-        handleChange={this.handleChange}
-        handleAdd={this.handleAdd} />
+          handleChange={this.handleChange}
+          handleAdd={this.handleAdd} />
         <TodoList />
       </div>
     )
@@ -1104,8 +1104,8 @@ class Todo extends Component {
       <div>
         <PageHeader name="Tarefas" small="Cadastro" />
         <TodoForm description={this.state.description} 
-        handleChange={this.handleChange}
-        handleAdd={this.handleAdd} />
+          handleChange={this.handleChange}
+          handleAdd={this.handleAdd} />
         <TodoList />
       </div>
     )
@@ -1119,7 +1119,7 @@ export default Todo;
 
 - Para que essas alterações reflitam em tela, iremos voltar no componente TodoList e nele vamos criar uma tabela com aplicação de estilos do bootstrap; 
 Essa tabela irá interar o array de objetos `list` que esperamos receber via props; 
-Além disso o `Button` de excluir de cada item/`todo` no evento de no atributo onClick(que envia para o evento onClick do elemento button) espera receber via props a função `handleRemove`:
+Além disso o `Button` de excluir de cada item/`todo` no atributo onClick(que envia para o evento onClick do elemento button) espera receber via props a função `handleRemove`:
 
 ``` JSX
 import React from "react";
@@ -1217,8 +1217,8 @@ class Todo extends Component {
       <div>
         <PageHeader name="Tarefas" small="Cadastro" />
         <TodoForm description={this.state.description} 
-        handleChange={this.handleChange}
-        handleAdd={this.handleAdd} />
+          handleChange={this.handleChange}
+          handleAdd={this.handleAdd} />
         <TodoList list={this.state.list} handleRemove={this.handleRemove} />
       </div>
     )
@@ -1226,4 +1226,331 @@ class Todo extends Component {
 }
 
 export default Todo;
+```
+
+## Marcar como Concuído/Pendente
+
+- No arquivo `TodoList.jsx`.
+
+### Alterações no arquivo TodoList.jsx
+
+- No componente `TodoList` iremos inserir dois Button's, um de Concluído o qual no atributo onClick(que envia para o evento onClick do elemento button) espera receber via props a função `handleMarkAsDone` passando o `todo` em questão como parâmetro e outro de Pendente o qual no atributo onClick(que envia para o evento onClick do elemento button) espera receber via props a função `handleMarkAsPending` passando o `todo` em questão como parâmetro:
+
+``` JSX
+import React from "react";
+import Button from "../Button";
+
+function TodoList(props) {
+
+  console.log(props);
+
+  const renderRows = () => {
+    const list = props.list ? props.list : []; 
+
+    return list.map(todo => (
+      // _id gerado pelo próprio mongo
+      <tr key={todo._id}> 
+        <td>{todo.description}</td>
+        <td className={todo.done ? "markedAsDone" : ""}>{todo.description}</td>
+          <Button style="success" icon="check" 
+            onClick={() => props.handleMarkAsDone(todo)} />
+          <Button style="warning" icon="undo" 
+            onClick={() => props.handleMarkAsPending(todo)} />
+          <Button style="danger" icon="trash-o" 
+            onClick={() => props.handleRemove(todo)} />
+        </td>
+      </tr>
+    ));
+  }
+
+  console.log("render", renderRows())
+  return (
+    <table className="table">
+      <thead>
+        <tr>
+          <th>Descrição</th>
+        </tr>
+      </thead>
+      <tbody>
+        {renderRows()}
+      </tbody>
+    </table>
+  )
+}
+
+export default TodoList;
+```
+
+### Alterações no arquivo Todo.jsx
+
+- Feito isso, iremos voltar no arquivo `Todo.jsx` e passar via props função `handleMarkAsDone()` e a função `handleMarkAsPending()`que o componente `TodoList` espera receber para renderizar na tabela:
+
+``` JSX
+import React, { Component } from "react";
+import axios from "axios";
+
+import PageHeader from "../PageHeader";
+import TodoForm from "../TodoForm";
+import TodoList from "../TodoList";
+
+const URL = "http://localhost:3003/api/todos";
+
+class Todo extends Component {
+
+  constructor(props) {
+    super(props);
+    this.state = { description: "", list: [] };
+
+    this.handleChange = this.handleChange.bind(this);
+    this.handleAdd = this.handleAdd.bind(this);
+    this.handleRemove = this.handleRemove.bind(this); 
+    this.handleMarkAsDone = this.handleMarkAsDone.bind(this);
+    this.handleMarkAsPending = this.handleMarkAsPending.bind(this); 
+
+    this.refresh();
+  }
+
+  refresh() { 
+    axios.get(`${URL}?sort=-createdAt`)
+      .then(resp => this.setState({...this.state, description: "", list: resp.data}));
+  }
+
+  handleChange(e) {
+    this.setState({ ...this.state, description: e.target.value }); 
+  }
+
+  handleAdd() {
+    const description = this.state.description;
+    axios.post(URL, { description })
+      .then(resp => this.refresh());
+  }
+
+
+  handleRemove(todo) {
+    axios.delete(`${URL}/${todo._id}`)
+      .then(resp => this.refresh());
+  }
+
+  handleMarkAsDone(todo) {
+    axios.put(`${URL}/${todo._id}`, {...todo, done: true})
+      .then(resp => this.refresh());
+  }
+
+  handleMarkAsPending(todo) {
+    axios.put(`${URL}/${todo._id}`, {...todo, done: false})
+      .then(resp => this.refresh());
+  }
+
+  render() {
+    return (
+      <div>
+        <PageHeader name="Tarefas" small="Cadastro" />
+        <TodoForm description={this.state.description} 
+          handleChange={this.handleChange}
+          handleAdd={this.handleAdd} />
+        <TodoList list={this.state.list} 
+          handleRemove={this.handleRemove}
+          handleMarkAsDone={this.handleMarkAsDone}
+          handleMarkAsPending={this.handleMarkAsPending} />
+      </div>
+    )
+  }
+}
+
+export default Todo;
+```
+
+### Criação e configurações no arquivo custom.css
+
+- No custom.css iremos criar classes css aplicar serem aplicada forma condicional:
+
+``` CSS
+.btn {
+  margin-right: 5px;
+}
+
+.markedAsDone {
+  text-decoration: line-through;
+  color: #777;
+}
+```
+
+- Feito isso, iremos importar esse arquivo css no componente `App`.
+
+## Pesquisa de Todo's
+
+- No arquivo `Todo.jsx`.
+
+### Alterações no arquivo Todo.jsx
+
+- Iremos alterar o método `refresh` para ele receber um parâmetro e suportar busca por descrição/`description`:
+
+``` JSX
+import React, { Component } from "react";
+import axios from "axios";
+
+import PageHeader from "../PageHeader";
+import TodoForm from "../TodoForm";
+import TodoList from "../TodoList";
+
+const URL = "http://localhost:3003/api/todos";
+
+class Todo extends Component {
+
+  constructor(props) {
+    super(props);
+    this.state = { description: "", list: [] };
+
+    this.handleChange = this.handleChange.bind(this);
+    this.handleAdd = this.handleAdd.bind(this);
+    this.handleRemove = this.handleRemove.bind(this); 
+    this.handleMarkAsDone = this.handleMarkAsDone.bind(this);
+    this.handleMarkAsPending = this.handleMarkAsPending.bind(this); 
+
+    this.refresh();
+  }
+
+  refresh(description = "") { 
+    const search = description ? `&description_regex=/${description}` : "";
+    axios.get(`${URL}?sort=-createdAt${search}`)
+      .then(resp => this.setState({...this.state, description: "", list: resp.data}));
+  }
+
+  handleChange(e) {
+    this.setState({ ...this.state, description: e.target.value }); 
+  }
+
+  handleAdd() {
+    const description = this.state.description;
+    axios.post(URL, { description })
+      .then(resp => this.refresh());
+  }
+
+
+  handleRemove(todo) {
+    axios.delete(`${URL}/${todo._id}`)
+      .then(resp => this.refresh());
+  }
+
+  handleMarkAsDone(todo) {
+    axios.put(`${URL}/${todo._id}`, {...todo, done: true})
+      .then(resp => this.refresh());
+  }
+
+  handleMarkAsPending(todo) {
+    axios.put(`${URL}/${todo._id}`, {...todo, done: false})
+      .then(resp => this.refresh());
+  }
+
+  render() {
+    return (
+      <div>
+        <PageHeader name="Tarefas" small="Cadastro" />
+        <TodoForm description={this.state.description} 
+          handleChange={this.handleChange}
+          handleAdd={this.handleAdd} />
+        <TodoList list={this.state.list} 
+          handleRemove={this.handleRemove}
+          handleMarkAsDone={this.handleMarkAsDone}
+          handleMarkAsPending={this.handleMarkAsPending} />
+      </div>
+    )
+  }
+}
+
+export default Todo;
+```
+
+- Em seguida, iremos criar o método `handleSearch()` e passar para o componente `TodoForm` que irá receber esse método via props no `Button` no atributo onClick(que envia para o evento onClick do elemento button):
+
+``` JSX
+import React, { Component } from "react";
+import axios from "axios";
+
+import PageHeader from "../PageHeader";
+import TodoForm from "../TodoForm";
+import TodoList from "../TodoList";
+
+const URL = "http://localhost:3003/api/todos";
+
+class Todo extends Component {
+
+  constructor(props) {
+    // o construtor é executado assim que a página é carregada
+    // com o construtor, idenpendente de quem irá chamar, o this irá apontar para a própria classe, nesse caso é Todo
+    super(props);
+    this.state = { description: "", list: [] };
+
+    this.handleChange = this.handleChange.bind(this);
+    this.handleAdd = this.handleAdd.bind(this);
+    this.handleRemove = this.handleRemove.bind(this); 
+    this.handleMarkAsDone = this.handleMarkAsDone.bind(this);
+    this.handleMarkAsPending = this.handleMarkAsPending.bind(this); 
+    this.handleSearch = this.handleSearch.bind(this);
+
+    this.refresh();
+  }
+
+  refresh(description = "") { 
+    const search = description ? `&description_regex=/${description}` : "";
+    axios.get(`${URL}?sort=-createdAt${search}`)
+      .then(resp => this.setState({...this.state, description: "", list: resp.data}));
+  }
+
+  handleSearch() {
+    this.refresh(this.state.description);
+  }
+
+  handleChange(e) {
+    this.setState({ ...this.state, description: e.target.value }); 
+  }
+
+  handleAdd() {
+    const description = this.state.description;
+    axios.post(URL, { description })
+      .then(resp => this.refresh());
+  }
+
+
+  handleRemove(todo) {
+    axios.delete(`${URL}/${todo._id}`)
+      .then(resp => this.refresh());
+  }
+
+  handleMarkAsDone(todo) {
+    axios.put(`${URL}/${todo._id}`, {...todo, done: true})
+      .then(resp => this.refresh());
+  }
+
+  handleMarkAsPending(todo) {
+    axios.put(`${URL}/${todo._id}`, {...todo, done: false})
+      .then(resp => this.refresh());
+  }
+
+  render() {
+    return (
+      <div>
+        <PageHeader name="Tarefas" small="Cadastro" />
+        <TodoForm description={this.state.description} 
+          handleChange={this.handleChange}
+          handleAdd={this.handleAdd} 
+          handleSearch={this.handleSearch} />
+        <TodoList list={this.state.list} 
+          handleRemove={this.handleRemove}
+          handleMarkAsDone={this.handleMarkAsDone}
+          handleMarkAsPending={this.handleMarkAsPending} />
+      </div>
+    )
+  }
+}
+
+export default Todo;
+```
+
+### Alterações no arquivo TodoForm.jsx
+
+- Feito isso, iremos incluir o componente `Button` que irá ser responsável pela busca:
+
+``` JSX
+
 ```

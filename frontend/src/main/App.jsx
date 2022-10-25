@@ -3,6 +3,7 @@
 // webpack suporta os dois formatos, mas como estamos trabalhando com react(js) iremos usar o import - export para padronizar
 import "modules/bootstrap/dist/css/bootstrap.min.css";
 import "modules/font-awesome/css/font-awesome.min.css"; // modules - apelido definido dentro de webpack.config para o diretório node_modules
+import "../css/custom.css";
 
 import React from "react";
 import Menu from "../../components/Menu";
