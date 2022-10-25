@@ -1150,6 +1150,7 @@ function TodoList(props) {
       <thead>
         <tr>
           <th>Descrição</th>
+          <th className="tableActions">Ações</th>
         </tr>
       </thead>
       <tbody>
@@ -1269,6 +1270,7 @@ function TodoList(props) {
       <thead>
         <tr>
           <th>Descrição</th>
+          <th className="tableActions">Ações</th>
         </tr>
       </thead>
       <tbody>
@@ -1549,8 +1551,30 @@ export default Todo;
 
 ### Alterações no arquivo TodoForm.jsx
 
-- Feito isso, iremos incluir o componente `Button` que irá ser responsável pela busca:
+- Feito isso, iremos incluir o componente `Button` que irá ser responsável pela busca passando para o atributo `onClick` a função `handleSearch`:
 
 ``` JSX
+import React from "react";
 
+import Grid from "../Grid";
+import Button from "../Button";
+
+function TodoForm(props) {
+  return (
+    <div role="form" className="todoForm">
+      <Grid cols="12 9 10">
+        <input type="text" id="description" className="form-control" 
+          placeholder="Adicione uma tarefa" onChange={props.handleChange} 
+          value={props.description} />
+      </Grid>
+        
+      <Grid cols="12 3 2">
+        <Button style="primary" icon="plus" onClick={props.handleAdd}></Button>
+        <Button style="info" icon="search" onClick={props.handleSearch}></Button>
+      </Grid>
+    </div>
+  )
+}
+
+export default TodoForm;
 ```
